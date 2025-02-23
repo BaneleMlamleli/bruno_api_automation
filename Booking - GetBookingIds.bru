@@ -1,0 +1,20 @@
+meta {
+  name: Booking - GetBookingIds
+  type: http
+  seq: 3
+}
+
+get {
+  url: https://restful-booker.herokuapp.com/booking
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+docs {
+  Returns the ids of all the bookings that exist within the API. Can take optional query strings to search and return a subset of booking ids.
+}

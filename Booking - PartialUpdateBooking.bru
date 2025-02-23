@@ -1,0 +1,33 @@
+meta {
+  name: Booking - PartialUpdateBooking
+  type: http
+  seq: 7
+}
+
+patch {
+  url: https://restful-booker.herokuapp.com/booking/:id
+  body: json
+  auth: none
+}
+
+params:path {
+  id: 1
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Basic 7b8e11fbf287826
+}
+
+body:json {
+  {
+    "firstname": "James",
+    "lastname": "Brown"
+  }
+}
+
+docs {
+  Updates a current booking with a partial payload
+  'Cookie: token=abc123' can be used as an alternative to the Authorization
+}

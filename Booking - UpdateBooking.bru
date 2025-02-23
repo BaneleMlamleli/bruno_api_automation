@@ -1,0 +1,40 @@
+meta {
+  name: Booking - UpdateBooking
+  type: http
+  seq: 6
+}
+
+put {
+  url: https://restful-booker.herokuapp.com/booking/:id
+  body: json
+  auth: none
+}
+
+params:path {
+  id: 1
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Authorization: Basic 7b8e11fbf287826
+}
+
+body:json {
+  {
+    "firstname": "James",
+    "lastname": "Brown",
+    "totalprice": 111,
+    "depositpaid": true,
+    "bookingdates": {
+      "checkin": "2018-01-01",
+      "checkout": "2019-01-01"
+    },
+    "additionalneeds": "Breakfast"
+  }
+}
+
+docs {
+  Updates a current booking
+  'Cookie: token=abc123' can be used as an alternative to the Authorization
+}

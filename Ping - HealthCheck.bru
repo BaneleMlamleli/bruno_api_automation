@@ -1,0 +1,15 @@
+meta {
+  name: Ping - HealthCheck
+  type: http
+  seq: 9
+}
+
+get {
+  url: https://restful-booker.herokuapp.com/ping
+  body: none
+  auth: none
+}
+
+docs {
+  A simple health check endpoint to confirm whether the API is up and running.
+}
