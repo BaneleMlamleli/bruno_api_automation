@@ -1,8 +1,7 @@
 # Bruno_API_Automation
 
-- In this project I'm using [restful-booker](https://restful-booker.herokuapp.com/apidoc/index.html) for my REST API.
-- I will be automating validation tests using Chai
-- I have created test cases and attached them in the Assets directory for referencing
+- This is an API testing project where I will be using [restful-booker](https://restful-booker.herokuapp.com/apidoc/index.html) for my REST API as it is well documented.
+- The objective is to automate the test cases I have written to validate the end-points using the Chai library
 
 ## Tech-stack for the project
 
