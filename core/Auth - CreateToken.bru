@@ -41,14 +41,16 @@ tests {
     expect(res.getStatus()).to.equal(200);
   });
   
-  
-  test("Verify required headers are present", ()=> {
+  test("Verify content-type header is json format", ()=> {
     expect(res.headers['content-type']).to.include("application/json");
+  });
+  
+  test("Verify accept header is json format", ()=> {
     expect(res.headers['accept']).to.include("application/json");
   });
   
   test("Verify required authorization header is defined", ()=> {
-    assert(res.headers['authorization']).isDefined();
+    expect(res.headers['authorization']).isDefined();
   });
   
 }
