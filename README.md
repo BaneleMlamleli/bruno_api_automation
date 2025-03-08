@@ -1,7 +1,7 @@
-# Bruno_API_Automation
+# ![bruno](./asset/bruno.png) Bruno_API_Automation
 
 - This is an API testing project where I will be using [restful-booker](https://restful-booker.herokuapp.com/apidoc/index.html) for my REST API as it is well documented.
-- The objective is to automate the test cases I have written to validate the end-points using the Chai library
+- The objective is to automate the test cases I have written to validate the end-points using the Chai library and to learn Bruno for future use.
 
 ## Tech-stack for the project
 

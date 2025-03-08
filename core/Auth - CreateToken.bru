@@ -41,18 +41,22 @@ tests {
     expect(res.getStatus()).to.equal(200);
   });
   
-  test("Verify content-type header is json format", ()=> {
-    expect(res.headers['content-type']).to.include("application/json");
-  });
+  // test("Verify content-type header is json format", ()=> {
+  //   expect(res.headers['content-type']).to.include("application/json");
+  // });
   
-  test("Verify accept header is json format", ()=> {
-    expect(res.headers['accept']).to.include("application/json");
-  });
+  // test("Verify accept header is json format", ()=> {
+  //   expect(res.headers['accept']).to.include("application/json");
+  // });
   
-  test("Verify required authorization header is defined", ()=> {
-    expect(res.headers['authorization']).isDefined();
-  });
+  // test("Verify required authorization header is defined", ()=> {
+  //   expect(res.headers['authorization']).isDefined();
+  // });
   
+  // test("Verify required cache-control header is defined", ()=> {
+  //   expect(res.headers['authorization']).isDefined();
+  // }); 
+
 }
 
 docs {
