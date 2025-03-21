@@ -384,9 +384,9 @@
       "totalAssertions": 1,
       "passedAssertions": 1,
       "failedAssertions": 0,
-      "totalTests": 1,
-      "passedTests": 1,
-      "failedTests": 0
+      "totalTests": 3,
+      "passedTests": 2,
+      "failedTests": 1
     },
     "results": [
       {
@@ -398,7 +398,8 @@
           "url": "https://restful-booker.herokuapp.com/auth",
           "headers": {
             "Accept": "application/json",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache"
           },
           "data": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
         },
@@ -407,26 +408,26 @@
           "statusText": "OK",
           "headers": {
             "server": "Cowboy",
-            "report-to": "{\"group\":\"heroku-nel\",\"max_age\":3600,\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?ts=1741469401&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=q5pMmjLyWslLZdF2tc6zH9Xe%2BzwJmq5asCTjCHppxwE%3D\"}]}",
-            "reporting-endpoints": "heroku-nel=https://nel.heroku.com/reports?ts=1741469401&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=q5pMmjLyWslLZdF2tc6zH9Xe%2BzwJmq5asCTjCHppxwE%3D",
+            "report-to": "{\"group\":\"heroku-nel\",\"max_age\":3600,\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?ts=1742583919&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=JOMq1iFW0ZgOI2iROIvHohpdtWd7GmRE5v%2BkZdwCQYo%3D\"}]}",
+            "reporting-endpoints": "heroku-nel=https://nel.heroku.com/reports?ts=1742583919&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=JOMq1iFW0ZgOI2iROIvHohpdtWd7GmRE5v%2BkZdwCQYo%3D",
             "nel": "{\"report_to\":\"heroku-nel\",\"max_age\":3600,\"success_fraction\":0.005,\"failure_fraction\":0.05,\"response_headers\":[\"Via\"]}",
             "connection": "keep-alive",
             "x-powered-by": "Express",
             "content-type": "application/json; charset=utf-8",
             "content-length": "27",
-            "etag": "W/\"1b-BBdF7l+HzA2cotkKMdhz50y3dc0\"",
-            "date": "Sat, 08 Mar 2025 21:30:01 GMT",
+            "etag": "W/\"1b-QPbI7k6ReGgTzltg+nJkTpOqNDA\"",
+            "date": "Fri, 21 Mar 2025 19:05:19 GMT",
             "via": "1.1 vegur"
           },
           "data": {
-            "token": "0f20a02605a6686"
+            "token": "f3c82ededd85f70"
           },
-          "responseTime": 1774
+          "responseTime": 7033
         },
         "error": null,
         "assertionResults": [
           {
-            "uid": "mFpvRBUG98O4s_txHNf_C",
+            "uid": "zmVcdyUs0vWQYzuSYhQkk",
             "lhsExpr": "res.status",
             "rhsExpr": "eq 200",
             "rhsOperand": "200",
@@ -436,13 +437,24 @@
         ],
         "testResults": [
           {
+            "description": "Verify accept header is json format",
+            "status": "fail",
+            "error": "the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string",
+            "uid": "xbppQ2ye_qI1QXb_QKxxt"
+          },
+          {
             "description": "Verify response code is 200",
             "status": "pass",
-            "uid": "XnHJYVJxWwAsfN4Roj2gd"
+            "uid": "k4BnntTlyQid8RD3A5-OF"
+          },
+          {
+            "description": "Verify content-type header is json format",
+            "status": "pass",
+            "uid": "OZHqa-ESa02DHIYf_qQpK"
           }
         ],
         "shouldStopRunnerExecution": false,
-        "runtime": 1.838844034,
+        "runtime": 7.131603109,
         "suitename": "./core/Auth - CreateToken",
         "iterationIndex": 0
       }

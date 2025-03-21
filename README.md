@@ -8,7 +8,7 @@
 - Bruno
 - Bruno CLI (@usebruno/cli)
 - NodeJS
-- Chai Libraery
+- Chai Library
 
 ## Execution
 

@@ -13,6 +13,7 @@ post {
 headers {
   Accept: application/json
   Content-Type: application/json
+  Cache-Control: no-cache
 }
 
 body:json {
@@ -35,19 +36,24 @@ script:post-response {
 }
 
 tests {
-  const dataResponse = res.getBody();
+  const chai = require('chai');
+  const { expect } = chai;
   
   test("Verify response code is 200", function () {
     expect(res.getStatus()).to.equal(200);
   });
   
-  // test("Verify content-type header is json format", ()=> {
-  //   expect(res.headers['content-type']).to.include("application/json");
-  // });
+  test("Verify content-type header is json format", ()=> {
+    expect(res.headers['content-type']).to.include("application/json");
+  });
   
-  // test("Verify accept header is json format", ()=> {
-  //   expect(res.headers['accept']).to.include("application/json");
-  // });
+  test("Verify accept header is json format", ()=> {
+    expect(res.headers['accept']).to.include("application/json");
+  });
+
+  test("Verify Cache-Control is defined with no-cache", ()=> {
+    expect(res.headers['Cache-Control']).to.include("no-cache");
+  });
   
   // test("Verify required authorization header is defined", ()=> {
   //   expect(res.headers['authorization']).isDefined();
@@ -56,7 +62,7 @@ tests {
   // test("Verify required cache-control header is defined", ()=> {
   //   expect(res.headers['authorization']).isDefined();
   // }); 
-
+  
 }
 
 docs {
