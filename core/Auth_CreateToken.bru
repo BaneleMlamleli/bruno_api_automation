@@ -1,0 +1,155 @@
+meta {
+  name: Auth - CreateToken
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://restful-booker.herokuapp.com/auth
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "admin",
+    "password": "password123"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:pre-request {
+  console.log("pre request");
+}
+
+script:post-response {
+  bru.setEnvVar("token",res.body.token);
+  console.log(req.headers);
+}
+
+tests {
+  const chai = require('chai');
+  const { expect } = chai;
+  
+  /**
+   * Test Case: Verify valid token is generated
+   * 
+   * This test verifies that the response body contains a valid token with the following criteria:
+   * - The response body must have a property named 'token'.
+   * - The 'token' property must be a string.
+   * - The 'token' must match the regex pattern /^[a-zA-Z0-9]+$/, ensuring it contains only alphanumeric characters.
+   * - The 'token' must not be empty, null, undefined, or contain only whitespace.
+   * 
+   * Additionally, the test logs the generated token to the console for debugging purposes.
+   */
+  test("Verify a valid token is generated", ()=>{
+    expect(res.body).to.have.property('token');
+    expect(res.body.token).to.be.a('string');
+    expect(res.body.token).to.match(/^[a-zA-Z0-9]+$/);
+    expect(res.body.token).to.not.be.empty;
+    expect(res.body.token).to.not.equal('null');
+    expect(res.body.token).to.not.equal('undefined');
+    expect(res.body.token).to.not.equal('');
+    expect(res.body.token).to.not.equal(' ');
+    console.log(res.body.token);
+  });
+  
+  // TC01, TC02: Verify Required Headers are Present
+  test("Verify headers are present and valid", () => {
+    expect(res.headers).to.have.property('content-type').that.includes('application/json');
+    expect(res.headers).to.have.property('server').that.is.a('string');
+    expect(res.headers).to.have.property('connection').that.equals('keep-alive');
+  });
+  
+  // TC06: Verify API Response Status Code
+  test("Verify response code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  // TC04, TC07: Verify Accept Header for Response Format
+  test("Verify Accept header is respected for JSON response format", () => {
+    expect(res.headers['content-type']).to.include('application/json');
+    expect(res.body).to.be.an('object');
+  });
+  
+  // TC08, TC09: Verify that the API response contains all the expected fields
+  test("Verify that the API response contains all the expected fields", () => {
+    expect(res.body).to.have.property('token');
+    expect(res.body.token).to.be.a('string');
+    expect(res.body).to.be.an('object');
+  });
+  
+  // Payload schema body validation
+  var payloadSchema = {
+    "type": "object",
+    "properties": {
+      "username": {
+        "type": "string"
+      },
+      "password": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "username",
+      "password"
+    ]
+  };
+  
+  test("Verify payload schema", () => {
+    const Ajv = require('ajv');
+    const ajv = new Ajv();
+    const validate = ajv.compile(payloadSchema);
+    const valid = validate(req.body);
+    if (!valid) {
+      console.log(validate.errors);
+    }
+    expect(valid).to.be.true;
+  });
+
+    
+  // Schema validation for the response body
+  var responseSchema = {
+    "title": "Generated schema for Root",
+    "type": "object",
+    "properties": {
+      "token": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "token"
+    ]
+  }
+
+  test("Verify response schema", () => {
+    const Ajv = require('ajv');
+    const ajv = new Ajv();
+    const validate = ajv.compile(responseSchema);
+    const valid = validate(res.body);
+    if (!valid) {
+      console.log(validate.errors);
+    }
+    expect(valid).to.be.true;
+  });
+  
+  // test("Verify Cache-Control is defined with no-cache", ()=> {
+  //   expect(res.headers['Cache-Control']).to.include('no-cache');
+  // });
+  
+  // test("Verify required authorization header is defined", ()=> {
+  //   expect(res.headers['authorization']).isDefined();
+  // });
+  
+  // test("Verify required cache-control header is defined", ()=> {
+  //   expect(res.headers['authorization']).isDefined();
+  // });
+  
+}
+
+docs {
+  Creates a new auth token to use for access to the PUT and DELETE /booking
+}
