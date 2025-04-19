@@ -384,8 +384,8 @@
       "totalAssertions": 1,
       "passedAssertions": 1,
       "failedAssertions": 0,
-      "totalTests": 3,
-      "passedTests": 3,
+      "totalTests": 7,
+      "passedTests": 7,
       "failedTests": 0
     },
     "results": [
@@ -406,26 +406,26 @@
           "statusText": "OK",
           "headers": {
             "server": "Cowboy",
-            "report-to": "{\"group\":\"heroku-nel\",\"max_age\":3600,\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?ts=1742677052&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=400jbnth1ZA1qrQBFnt9XuYonP3VsrPHQ47%2B232ikGQ%3D\"}]}",
-            "reporting-endpoints": "heroku-nel=https://nel.heroku.com/reports?ts=1742677052&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=400jbnth1ZA1qrQBFnt9XuYonP3VsrPHQ47%2B232ikGQ%3D",
+            "report-to": "{\"group\":\"heroku-nel\",\"max_age\":3600,\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?ts=1745029844&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=1picTlSIEuVlzgoNXDqY5RNlwPDvsyegPb5S4Hn1Cz0%3D\"}]}",
+            "reporting-endpoints": "heroku-nel=https://nel.heroku.com/reports?ts=1745029844&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=1picTlSIEuVlzgoNXDqY5RNlwPDvsyegPb5S4Hn1Cz0%3D",
             "nel": "{\"report_to\":\"heroku-nel\",\"max_age\":3600,\"success_fraction\":0.005,\"failure_fraction\":0.05,\"response_headers\":[\"Via\"]}",
             "connection": "keep-alive",
             "x-powered-by": "Express",
             "content-type": "application/json; charset=utf-8",
             "content-length": "27",
-            "etag": "W/\"1b-kwJiKG9LMD2atl6ps3oDXtk43xE\"",
-            "date": "Sat, 22 Mar 2025 20:57:32 GMT",
+            "etag": "W/\"1b-ULh+6J/5XukbKqYLCm5e+xwj6n8\"",
+            "date": "Sat, 19 Apr 2025 02:30:44 GMT",
             "via": "1.1 vegur"
           },
           "data": {
-            "token": "287f1609b13aa89"
+            "token": "6654fc5f6cdab39"
           },
-          "responseTime": 1928
+          "responseTime": 1881
         },
         "error": null,
         "assertionResults": [
           {
-            "uid": "5GYW4Ol8pyUUYuYuEb9pu",
+            "uid": "G4fNTM5hgP1dT-lmEa9Rc",
             "lhsExpr": "res.status",
             "rhsExpr": "eq 200",
             "rhsOperand": "200",
@@ -435,23 +435,43 @@
         ],
         "testResults": [
           {
+            "description": "Verify a valid token is generated",
+            "status": "pass",
+            "uid": "TTzT8ukFQxW7xzFCTAV_-"
+          },
+          {
+            "description": "Verify headers are present and valid",
+            "status": "pass",
+            "uid": "c5iU66f46ECuKg-Llh_SJ"
+          },
+          {
             "description": "Verify response code is 200",
             "status": "pass",
-            "uid": "iVdadRt_2X6F8m-TQFdGS"
+            "uid": "ONyz3goWb-f0zXzZKfBkA"
           },
           {
-            "description": "Verify content-type header is json format",
+            "description": "Verify Accept header is respected for JSON response format",
             "status": "pass",
-            "uid": "UkH25t6Glfefbt4lQII5M"
+            "uid": "953IVChvGdqmslKhwFuNh"
           },
           {
-            "description": "Verify token is generated",
+            "description": "Verify that the API response contains all the expected fields",
             "status": "pass",
-            "uid": "j8lPJiZXM6PN2GtOdmN-s"
+            "uid": "k-9mVEKkFFmSMrWc9qg2U"
+          },
+          {
+            "description": "Verify payload schema",
+            "status": "pass",
+            "uid": "9cBzR9L5nzNrZ-rQY_Vea"
+          },
+          {
+            "description": "Verify response schema",
+            "status": "pass",
+            "uid": "pvB09qHW7FyGUDhZBamfu"
           }
         ],
         "shouldStopRunnerExecution": false,
-        "runtime": 1.973736967,
+        "runtime": 1.964435249,
         "suitename": "./core/Auth_CreateToken",
         "iterationIndex": 0
       }
