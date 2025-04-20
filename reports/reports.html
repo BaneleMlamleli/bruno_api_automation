@@ -381,98 +381,52 @@
       "passedRequests": 1,
       "failedRequests": 0,
       "skippedRequests": 0,
-      "totalAssertions": 1,
-      "passedAssertions": 1,
+      "totalAssertions": 0,
+      "passedAssertions": 0,
       "failedAssertions": 0,
-      "totalTests": 7,
-      "passedTests": 7,
+      "totalTests": 0,
+      "passedTests": 0,
       "failedTests": 0
     },
     "results": [
       {
         "test": {
-          "filename": "./core/Auth_CreateToken.bru"
+          "filename": "./core/Auth_CreateTokenMalformedRequest.bru"
         },
         "request": {
           "method": "POST",
           "url": "https://restful-booker.herokuapp.com/auth",
           "headers": {
-            "content-type": "application/json"
-          },
-          "data": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
+            "content-type": "application/xml"
+          }
         },
         "response": {
           "status": 200,
           "statusText": "OK",
           "headers": {
             "server": "Cowboy",
-            "report-to": "{\"group\":\"heroku-nel\",\"max_age\":3600,\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?ts=1745029844&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=1picTlSIEuVlzgoNXDqY5RNlwPDvsyegPb5S4Hn1Cz0%3D\"}]}",
-            "reporting-endpoints": "heroku-nel=https://nel.heroku.com/reports?ts=1745029844&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=1picTlSIEuVlzgoNXDqY5RNlwPDvsyegPb5S4Hn1Cz0%3D",
+            "report-to": "{\"group\":\"heroku-nel\",\"max_age\":3600,\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?ts=1745182639&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=PkuK78NzGZYPs%2Bgp1xpQHGQWjFvVrN%2FdamGI7idZBmA%3D\"}]}",
+            "reporting-endpoints": "heroku-nel=https://nel.heroku.com/reports?ts=1745182639&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=PkuK78NzGZYPs%2Bgp1xpQHGQWjFvVrN%2FdamGI7idZBmA%3D",
             "nel": "{\"report_to\":\"heroku-nel\",\"max_age\":3600,\"success_fraction\":0.005,\"failure_fraction\":0.05,\"response_headers\":[\"Via\"]}",
             "connection": "keep-alive",
             "x-powered-by": "Express",
             "content-type": "application/json; charset=utf-8",
-            "content-length": "27",
-            "etag": "W/\"1b-ULh+6J/5XukbKqYLCm5e+xwj6n8\"",
-            "date": "Sat, 19 Apr 2025 02:30:44 GMT",
+            "content-length": "28",
+            "etag": "W/\"1c-J3EiwfZwVQjKTKvpvazUfTni8fI\"",
+            "date": "Sun, 20 Apr 2025 20:57:20 GMT",
             "via": "1.1 vegur"
           },
           "data": {
-            "token": "6654fc5f6cdab39"
+            "reason": "Bad credentials"
           },
-          "responseTime": 1881
+          "responseTime": 2042
         },
         "error": null,
-        "assertionResults": [
-          {
-            "uid": "G4fNTM5hgP1dT-lmEa9Rc",
-            "lhsExpr": "res.status",
-            "rhsExpr": "eq 200",
-            "rhsOperand": "200",
-            "operator": "eq",
-            "status": "pass"
-          }
-        ],
-        "testResults": [
-          {
-            "description": "Verify a valid token is generated",
-            "status": "pass",
-            "uid": "TTzT8ukFQxW7xzFCTAV_-"
-          },
-          {
-            "description": "Verify headers are present and valid",
-            "status": "pass",
-            "uid": "c5iU66f46ECuKg-Llh_SJ"
-          },
-          {
-            "description": "Verify response code is 200",
-            "status": "pass",
-            "uid": "ONyz3goWb-f0zXzZKfBkA"
-          },
-          {
-            "description": "Verify Accept header is respected for JSON response format",
-            "status": "pass",
-            "uid": "953IVChvGdqmslKhwFuNh"
-          },
-          {
-            "description": "Verify that the API response contains all the expected fields",
-            "status": "pass",
-            "uid": "k-9mVEKkFFmSMrWc9qg2U"
-          },
-          {
-            "description": "Verify payload schema",
-            "status": "pass",
-            "uid": "9cBzR9L5nzNrZ-rQY_Vea"
-          },
-          {
-            "description": "Verify response schema",
-            "status": "pass",
-            "uid": "pvB09qHW7FyGUDhZBamfu"
-          }
-        ],
+        "assertionResults": [],
+        "testResults": [],
         "shouldStopRunnerExecution": false,
-        "runtime": 1.964435249,
-        "suitename": "./core/Auth_CreateToken",
+        "runtime": 2.052654669,
+        "suitename": "./core/Auth_CreateTokenMalformedRequest",
         "iterationIndex": 0
       }
     ]

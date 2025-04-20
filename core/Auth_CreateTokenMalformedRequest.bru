@@ -1,0 +1,22 @@
+meta {
+  name: Auth - CreateToken - malformed request
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://restful-booker.herokuapp.com/auth
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": ,
+    "password": null
+  }
+}
+
+docs {
+  Creates a new auth token to use for access to the PUT and DELETE /booking
+}

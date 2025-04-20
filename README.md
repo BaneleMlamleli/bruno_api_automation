@@ -15,6 +15,6 @@
 
 You can execute the tests in two ways:
 
-- Use Bruno CLI with HTML reports. Generate the reports into the /Reports directory
-  - bru run ./core/ --reporter-html ./Reports/reports.html
+- Use Bruno CLI with HTML reports. Generate the reports into the /reports directory
+  - bru run ./core/ --reporter-html ./reports/reports.html
 - Install Bruno and run the folder, collection, or individual API calls

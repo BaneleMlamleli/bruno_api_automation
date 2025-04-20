@@ -54,7 +54,6 @@ tests {
     expect(res.body.token).to.not.equal('undefined');
     expect(res.body.token).to.not.equal('');
     expect(res.body.token).to.not.equal(' ');
-    console.log(res.body.token);
   });
   
   // TC01, TC02: Verify Required Headers are Present
@@ -82,7 +81,7 @@ tests {
     expect(res.body).to.be.an('object');
   });
   
-  // Payload schema body validation
+  // TC09: Payload schema body validation
   var payloadSchema = {
     "type": "object",
     "properties": {
@@ -111,7 +110,7 @@ tests {
   });
 
     
-  // Schema validation for the response body
+  // TC09: Schema validation for the response body
   var responseSchema = {
     "title": "Generated schema for Root",
     "type": "object",
@@ -136,17 +135,36 @@ tests {
     expect(valid).to.be.true;
   });
   
-  // test("Verify Cache-Control is defined with no-cache", ()=> {
-  //   expect(res.headers['Cache-Control']).to.include('no-cache');
-  // });
-  
-  // test("Verify required authorization header is defined", ()=> {
-  //   expect(res.headers['authorization']).isDefined();
-  // });
-  
-  // test("Verify required cache-control header is defined", ()=> {
-  //   expect(res.headers['authorization']).isDefined();
-  // });
+  // TC10: Verify that the API response time is within acceptable limits
+  test("Verify response time is within acceptable limits", () => {
+    const maxResponseTime = 5000; // 2 seconds
+    expect(res.getResponseTime()).to.be.lessThan(maxResponseTime);
+  });
+
+  // TC12: Verify that the API request method is correct (e.g. GET, POST, PUT, DELETE)
+  test("Verify request method is POST", () => {
+    expect(req.method).to.equal('POST');
+  });
+
+  // TC13: Verify that the API request URL is correct
+  test("Verify request URL is correct", () => {
+    expect(req.url).to.equal('https://restful-booker.herokuapp.com/auth');
+  });
+
+  // TC00: Verify that the API request body is correct
+  test("Verify request body is correct", () => {
+    expect(req.body).to.have.property('username').that.equals('admin');
+    expect(req.body).to.have.property('password').that.equals('password123');
+  });
+
+  // TC14: Verify that the API returns an error message if the request is malformed
+  // Note: Body of the request (payload) is malformed
+  test("Verify error message for malformed request", async () => {
+    const requestResponse = await bru.runRequest("./Auth_CreateTokenMalformedRequest.bru");
+    const response = bru.getResponse();
+    expect(response.status).to.equal(400);
+    expect(response.body).to.equals('Bad Request');
+  });
   
 }
 
