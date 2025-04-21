@@ -34,6 +34,18 @@ body:json {
   }
 }
 
+tests {
+  const chai = require('chai');
+  const { expect } = chai;
+
+  // TC15: Verify that the API returns an error message if the authentication fails
+  test("Verify that the API returns an error message if the authentication fails", () => {
+    expect(res.status).to.equal(403);
+    // expect(res.body).to.have.property('reason');
+    expect(res.body).to.equal('Forbidden');
+  });
+}
+
 docs {
   Updates a current booking
   'Cookie: token=abc123' can be used as an alternative to the Authorization
