@@ -157,10 +157,32 @@ tests {
     expect(req.body).to.have.property('password').that.equals('password123');
   });
 
-  // TC14: Verify that the API returns an error message if the request is malformed
+  // TC14, TC16: Verify that the API returns an error message if the request is malformed
   // Note: Body of the request (payload) is malformed
   test("Verify error message for malformed request", async () => {
     const requestResponse = await bru.runRequest("./Auth_CreateTokenMalformedRequest.bru");
+    const response = bru.getResponse();
+    expect(response.status).to.equal(400);
+    expect(response.body).to.equals('Bad Request');
+  });
+
+  // TC17: Verify that the API correctly handles cookies and returns the correct HTTP status code
+  // test("Verify cookies are handled correctly", () => {
+  //   expect(res.headers).to.have.property('set-cookie');
+  //   expect(res.headers['set-cookie']).to.be.an('array').that.is.not.empty;
+  //   expect(res.headers['set-cookie'][0]).to.include('sessionid');
+  // });
+
+  // TC18: Verify that the API correctly handles caching and returns the correct HTTP status code
+  // test("Verify caching is handled correctly", () => {
+  //   expect(res.headers).to.have.property('cache-control');
+  //   expect(res.headers['cache-control']).to.include('no-cache');
+  // });
+
+  // TC19: Verify that the API correctly handles cross-site scripting (XSS) attacks and returns the correct HTTP status code
+  test("Verify XSS attacks are handled correctly", async () => {
+    const xssPayload = "<script>alert('XSS');</script>";
+    const requestResponse = await bru.runRequest("./Auth_CreateTokenXSS.bru", { body: { username: xssPayload, password: xssPayload } });
     const response = bru.getResponse();
     expect(response.status).to.equal(400);
     expect(response.body).to.equals('Bad Request');
