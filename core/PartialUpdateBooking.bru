@@ -31,12 +31,17 @@ tests {
   const chai = require('chai');
   const { expect } = chai;
 
-  // TC15: Verify that the API returns an error message if the authentication fails
-  test("Verify that the API returns an error message if the authentication fails", () => {
+  // TC23: Schema validation for unauthorised request
+
+
+  // TC15, TC25 : Verify that the API returns a 403 status code for unauthorised request
+  test("Schema validation for unauthorised request", () => {
     expect(res.status).to.equal(403);
-    // expect(res.body).to.have.property('reason');
-    expect(res.body).to.equal('Forbidden');
+    expect(res.body).to.have.property('reason');
+    expect(res.body.reason).to.equal('Forbidden');
   });
+
+
 }
 
 docs {
