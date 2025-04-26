@@ -1,5 +1,5 @@
 meta {
-  name: Auth - CreateToken - cross-site scripting
+  name: Auth - CreateToken - Cross-site scripting
   type: http
   seq: 1
 }
@@ -12,8 +12,8 @@ post {
 
 body:json {
   {
-    username: <script>alert('username XSS script');</script>,
-    password: <script>alert('password XSS script');</script>
+    username: '<script>alert('XSS');</script',
+    password: '<script>alert('XSS');</script'
   }
 }
 

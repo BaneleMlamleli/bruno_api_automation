@@ -106,10 +106,9 @@ tests {
   // TC14, TC16: Verify that the API returns an error message if the request is malformed
   // Note: Body of the request (payload) is malformed
   test("Verify error message for malformed request", async () => {
-    const requestResponse = await bru.runRequest("./Auth_CreateTokenMalformedRequest.bru");
-    const response = bru.getResponse();
+    const response = await bru.runRequest("./scripts/malformedrequests/Auth_CreateTokenMalformedRequest.bru");
     expect(response.status).to.equal(400);
-    expect(response.body).to.equals('Bad Request');
+    expect(response.statusText).to.equal('Bad Request');
   });
 
   // TC17: Verify that the API correctly handles cookies and returns the correct HTTP status code
@@ -127,50 +126,35 @@ tests {
 
   // TC19: Verify that the API correctly handles cross-site scripting (XSS) attacks and returns the correct HTTP status code
   test("Verify XSS attacks are handled correctly", async () => {
-    const xssPayload = "<script>alert('XSS');</script>";
-    const requestResponse = await bru.runRequest("./Auth_CreateTokenXSS.bru", { body: { username: xssPayload, password: xssPayload } });
-    const response = bru.getResponse();
+    const response = await bru.runRequest("./scripts/CrossSiteScript/Auth_CreateTokenXSS.bru");
     expect(response.status).to.equal(400);
-    expect(response.body).to.equals('Bad Request');
+    expect(response.statusText).to.equals('Bad Request');
   });
 
   // TC20: Verify that the API correctly handles SQL injection attacks and returns the correct HTTP status code
   test("Verify SQL injection attacks are handled correctly", async () => {
-    const sqlInjectionPayload = "' OR '1'='1";
-    const requestResponse = await bru.runRequest("./Auth_CreateTokenSQLInjection.bru", { body: { username: sqlInjectionPayload, password: sqlInjectionPayload } });
-    const response = bru.getResponse();
+    const response = await bru.runRequest("./scripts/SqlInjection/Auth_CreateTokenSQLInjection.bru");
     expect(response.status).to.equal(400);
-    expect(response.body).to.equals('Bad Request');
+    expect(response.statusText).to.equals('Bad Request');
   });
   
   // TC21: Verify that the API correctly handles CSRF attacks and returns the correct HTTP status code
   test("Verify CSRF attacks are handled correctly", async () => {
-    const csrfPayload = "<img src=x onerror=alert('CSRF')>";
-    const requestResponse = await bru.runRequest("./Auth_CreateTokenCSRF.bru", { body: { username: csrfPayload, password: csrfPayload } });
-    const response = bru.getResponse();
+    const response = await bru.runRequest("./scripts/CSRF/Auth_CreateTokenCSRF.bru");
     expect(response.status).to.equal(400);
-    expect(response.body).to.equals('Bad Request');
-    expect(response.body).to.equals('Bad Request');
+    expect(response.statusText).to.equals('Bad Request');
   });
-    
-  // TC22: Schema validation for successful response`
-  var responseSchema = {
-    "title": "Generated schema for Root",
-    "type": "object",
-    "properties": {
-      "token": {
-        "type": "string"
-      }
-    },
-    "required": [
-      "token"
-    ]
+
+  // Directly require the schema JSON file instead of reading with fs
+  function getSchema(schemaPath) {
+    return require(schemaPath);
   }
 
+  // TC22: Schema validation for successful response
   test("Verify response schema", () => {
     const Ajv = require('ajv');
     const ajv = new Ajv();
-    const validate = ajv.compile(responseSchema);
+    const validate = ajv.compile(getSchema('./scripts/schemas/Auth_CreateTokenResponseSchema.json'));
     const valid = validate(res.body);
     if (!valid) {
       console.log(validate.errors);
@@ -178,27 +162,11 @@ tests {
     expect(valid).to.be.true;
   });
 
-  // TC24: Schema validation for a valid payload
-  var payloadSchema = {
-    "type": "object",
-    "properties": {
-      "username": {
-        "type": "string"
-      },
-      "password": {
-        "type": "string"
-      }
-    },
-    "required": [
-      "username",
-      "password"
-    ]
-  };
-  
+  // TC23: Schema validation for request payload      
   test("Verify payload schema", () => {
     const Ajv = require('ajv');
     const ajv = new Ajv();
-    const validate = ajv.compile(payloadSchema);
+    const validate = ajv.compile(getSchema('./scripts/schemas/Auth_CreateTokenPayloadSchema.json'));
     const valid = validate(req.body);
     if (!valid) {
       console.log(validate.errors);
