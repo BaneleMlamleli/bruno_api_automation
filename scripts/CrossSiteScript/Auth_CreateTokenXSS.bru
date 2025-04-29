@@ -1,0 +1,22 @@
+meta {
+  name: Auth - CreateToken - Cross-site scripting
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://restful-booker.herokuapp.com/auth
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    username: '<script>alert('XSS');</script',
+    password: '<script>alert('XSS');</script'
+  }
+}
+
+docs {
+  API correctly handles cross-site scripting (XSS) attacks and returns the correct HTTP status code and error message.
+}

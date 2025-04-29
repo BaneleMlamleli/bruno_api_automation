@@ -27,6 +27,23 @@ body:json {
   }
 }
 
+tests {
+  const chai = require('chai');
+  const { expect } = chai;
+
+  // TC23: Schema validation for unauthorised request
+
+
+  // TC15, TC25 : Verify that the API returns a 403 status code for unauthorised request
+  test("Schema validation for unauthorised request", () => {
+    expect(res.status).to.equal(403);
+    expect(res.body).to.have.property('reason');
+    expect(res.body.reason).to.equal('Forbidden');
+  });
+
+
+}
+
 docs {
   Updates a current booking with a partial payload
   'Cookie: token=abc123' can be used as an alternative to the Authorization

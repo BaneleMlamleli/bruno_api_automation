@@ -1,0 +1,22 @@
+meta {
+  name: Auth - CreateToken - SQL Injection
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://restful-booker.herokuapp.com/auth
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    username: "' OR '1'='1",
+    password: "' OR '1'='1"
+  }
+}
+
+docs {
+  API correctly handles SQL Injection attacks and returns the correct HTTP status code and error message.
+}

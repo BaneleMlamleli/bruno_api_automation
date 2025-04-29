@@ -15,7 +15,19 @@ headers {
   Authorization: Basic 7b8e11fbf287826
 }
 
+tests {
+  const chai = require('chai');
+  const { expect } = chai;
+
+    // TC15, TC25 : Verify that the API returns a 403 status code for unauthorised request
+  test("Schema validation for unauthorised request", () => {
+    expect(res.status).to.equal(403);
+    expect(res.body).to.have.property('reason');
+    expect(res.body.reason).to.equal('Forbidden');
+  });
+}
+
 docs {
-  Returns the ids of all the bookings that exist within the API. Can take optional query strings to search and return a subset of booking ids.
+  Returns the IDs of all the bookings that exist within the API. Can take optional query strings to search and return a subset of booking ids.
   'Cookie: token=abc123' can be used as an alternative to the Authorization
 }
