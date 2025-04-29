@@ -126,15 +126,7 @@ tests {
     expect(req.url).to.equal('https://restful-booker.herokuapp.com/auth');
   });
 
-  /**
-   * TC00: Verify that the API request body is correct
-   * This test ensures that the request payload contains the correct 'username' and 'password'
-   * fields with expected values.
-   */
-  test("Verify request body is correct", () => {
-    expect(req.body).to.have.property('username').that.equals('admin');
-    expect(req.body).to.have.property('password').that.equals('password123');
-  });
+
 
   /**
    * TC14, TC16: Verify that the API returns an error message if the request is malformed
@@ -237,6 +229,16 @@ tests {
       console.log(validate.errors);
     }
     expect(valid).to.be.true;
+  });
+
+  /**
+   * TC26: Verify that the API request body is correct
+   * This test ensures that the request payload contains the correct 'username' and 'password'
+   * fields with expected values.
+   */
+  test("Verify request body is correct", () => {
+    expect(req.body).to.have.property('username').that.equals('admin');
+    expect(req.body).to.have.property('password').that.equals('password123');
   });
   
 }
