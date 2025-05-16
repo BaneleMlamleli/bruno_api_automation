@@ -17,16 +17,29 @@ headers {
 
 body:json {
   {
-    "firstname": "Jim",
-    "lastname": "Brown",
-    "totalprice": 111,
-    "depositpaid": true,
+    "firstname": "{{firstname}}",
+    "lastname": "{{lastname}}",
+    "totalprice": {{totalprice}},
+    "depositpaid": {{depositpaid}},
     "bookingdates": {
-      "checkin": "2018-01-01",
-      "checkout": "2019-01-01"
+      "checkin": "{{checkin}}",
+      "checkout": "{{checkout}}"
     },
-    "additionalneeds": "Breakfast"
+    "additionalneeds": "{{additionalneeds}}"
   }
+}
+
+script:pre-request {
+  const { faker } = require('@faker-js/faker');
+
+  // Set the environment variables for the request
+  bru.setEnvVar("firstname", faker.person.firstName()); // Rowan
+  bru.setEnvVar("lastname", faker.person.lastName()); // Nikolaus
+  bru.setEnvVar("totalprice", faker.number.int({ min: 100, max: 1000 })); // 123
+  bru.setEnvVar("depositpaid", faker.datatype.boolean()); // true
+  bru.setEnvVar("checkin", faker.date.future({ years: 1 }).toISOString().split('T')[0]); // 2024-10-01
+  bru.setEnvVar("checkout", faker.date.future({ years: 1 }).toISOString().split('T')[0]); // 2024-10-02
+  bru.setEnvVar("additionalneeds", faker.lorem.sentence()); // "Breakfast included"
 }
 
 tests {
@@ -94,7 +107,7 @@ tests {
     const maxResponseTime = 5000;
     expect(res.getResponseTime()).to.be.lessThan(maxResponseTime);
   });
-
+  
   /**
    * TC12: Verify that the API request method is correct (e.g. GET, POST, PUT, DELETE)
    * This test checks that the HTTP request method used is POST.
@@ -102,7 +115,7 @@ tests {
   test("Verify request method is POST", () => {
     expect(req.method).to.equal('POST');
   });
-
+  
   /**
    * TC13: Verify that the API request URL is correct
    * This test verifies that the API request is sent to the correct endpoint URL for authentication.
@@ -110,9 +123,9 @@ tests {
   test("Verify request URL is correct", () => {
     expect(req.url).to.equal('https://restful-booker.herokuapp.com/booking');
   });
-
-
-
+  
+  
+  
   /**
    * TC14, TC16: Verify that the API returns an error message if the request is malformed
    * Note: Body of the request (payload) is malformed
@@ -124,7 +137,7 @@ tests {
     expect(response.status).to.equal(400);
     expect(response.statusText).to.equal('Bad Request');
   });
-
+  
   /**
    * TC17: Verify that the API correctly handles cookies and returns the correct HTTP status code
    * This test would check that the API sets cookies correctly in the response headers and includes
@@ -135,7 +148,7 @@ tests {
   //   expect(res.headers['set-cookie']).to.be.an('array').that.is.not.empty;
   //   expect(res.headers['set-cookie'][0]).to.include('sessionid');
   // });
-
+  
   /**
    * TC18: Verify that the API correctly handles caching and returns the correct HTTP status code
    * This test would verify that the API response includes appropriate cache-control headers to
@@ -145,7 +158,7 @@ tests {
   //   expect(res.headers).to.have.property('cache-control');
   //   expect(res.headers['cache-control']).to.include('no-cache');
   // });
-
+  
   /**
    * TC19: Verify that the API correctly handles cross-site scripting (XSS) attacks and returns the correct HTTP status code
    * This test sends a request simulating an XSS attack and checks that the API responds with a 400 Bad
@@ -156,7 +169,7 @@ tests {
     expect(response.status).to.equal(400);
     expect(response.statusText).to.equals('Bad Request');
   });
-
+  
   /**
    * TC20: Verify that the API correctly handles SQL injection attacks and returns the correct HTTP status code
    * This test sends a request simulating an SQL injection attack and checks that the API responds
@@ -178,12 +191,12 @@ tests {
     expect(response.status).to.equal(400);
     expect(response.statusText).to.equals('Bad Request');
   });
-
+  
   // Directly require the schema JSON file instead of reading with fs
   function getSchema(schemaPath) {
     return require(schemaPath);
   }
-
+  
   /**
    * TC22: Schema validation for successful response
    * This test validates the API response body against the expected JSON schema for a successful token
@@ -199,7 +212,7 @@ tests {
     }
     expect(valid).to.be.true;
   });
-
+  
   /**
    * TC23: Schema validation for request payload      
    * This test validates the request payload against the expected JSON schema to ensure it meets
@@ -215,7 +228,7 @@ tests {
     }
     expect(valid).to.be.true;
   });
-
+  
   /**
    * TC26: Verify that the API request body is correct
    * This test ensures that the request payload contains the correct field property with the correct type
