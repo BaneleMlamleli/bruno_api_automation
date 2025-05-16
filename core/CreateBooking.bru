@@ -32,10 +32,209 @@ body:json {
 tests {
   const chai = require('chai');
   const { expect } = chai;
+  
+  
+  // TC01, TC02: Verify Required Headers are Present
+  /**
+   * Test Case: Verify headers are present and valid
+   * 
+   * This test checks that the response contains the required HTTP headers:
+   * - 'content-type' header includes 'application/json'
+   * - 'server' header is present and is a string
+   * - 'connection' header is present and equals 'keep-alive'
+   */
+  test("Verify headers are present and valid", () => {
+    expect(res.headers).to.have.property('content-type').that.includes('application/json');
+    expect(res.headers).to.have.property('server').that.is.a('string');
+    expect(res.headers).to.have.property('connection').that.equals('keep-alive');
+  });
+  
+  /**
+   * TC06: Verify API Response Status Code
+   * This test checks that the API response status code is 200, indicating a successful request.
+   */
+  test("Verify response code is 200", function () {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  /**
+   * TC04, TC07: Verify Accept Header for Response Format
+   * This test ensures that the API respects the Accept header by returning a JSON response with the
+   * correct content-type and that the response body is an object.
+   */
+  test("Verify Accept header is respected for JSON response format", () => {
+    expect(res.headers['content-type']).to.include('application/json');
+    expect(res.body).to.be.an('object');
+  });
+  
+  /**
+   * TC08, TC09: Verify that the API response contains all the expected fields
+   * This test verifies that the API response includes all fields with their data types and the response body is an object.
+   */
+  test("Verify that the API response contains all the expected fields", () => {
+    expect(res.body).to.be.an('object');
+    expect(res.body).to.have.property('bookingid').that.is.a('number');
+    expect(res.body).to.have.property('booking').that.is.an('object');
+    expect(res.body.booking).to.have.property('firstname').that.is.a('string');
+    expect(res.body.booking).to.have.property('lastname').that.is.a('string');
+    expect(res.body.booking).to.have.property('totalprice').that.is.a('number');
+    expect(res.body.booking).to.have.property('depositpaid').that.is.a('boolean');
+    expect(res.body.booking.bookingdates).to.be.an('object');
+    expect(res.body.booking.bookingdates).to.have.property('checkin').that.is.a('string');
+    expect(res.body.booking.bookingdates).to.have.property('checkout').that.is.a('string');
+    expect(res.body.booking).to.have.property('additionalneeds').that.is.a('string');
+  });
+  
+  /**
+   * TC10: Verify that the API response time is within acceptable limits
+   * This test asserts that the API response time does not exceed the maximum allowed
+   * threshold (5 seconds).
+   */
+  test("Verify response time is within acceptable limits", () => {
+    const maxResponseTime = 5000;
+    expect(res.getResponseTime()).to.be.lessThan(maxResponseTime);
+  });
+
+  /**
+   * TC12: Verify that the API request method is correct (e.g. GET, POST, PUT, DELETE)
+   * This test checks that the HTTP request method used is POST.
+   */
+  test("Verify request method is POST", () => {
+    expect(req.method).to.equal('POST');
+  });
+
+  /**
+   * TC13: Verify that the API request URL is correct
+   * This test verifies that the API request is sent to the correct endpoint URL for authentication.
+   */
+  test("Verify request URL is correct", () => {
+    expect(req.url).to.equal('https://restful-booker.herokuapp.com/booking');
+  });
 
 
+
+  /**
+   * TC14, TC16: Verify that the API returns an error message if the request is malformed
+   * Note: Body of the request (payload) is malformed
+   * This test sends a malformed request and checks that the API responds with a 400 Bad Request
+   * status and appropriate status text.
+   */
+  test("Verify error message for malformed request", async () => {
+    const response = await bru.runRequest("./scripts/malformedrequests/CreateBookingMalformed.bru");
+    expect(response.status).to.equal(400);
+    expect(response.statusText).to.equal('Bad Request');
+  });
+
+  /**
+   * TC17: Verify that the API correctly handles cookies and returns the correct HTTP status code
+   * This test would check that the API sets cookies correctly in the response headers and includes
+   * a session ID.
+   */
+  // test("Verify cookies are handled correctly", () => {
+  //   expect(res.headers).to.have.property('set-cookie');
+  //   expect(res.headers['set-cookie']).to.be.an('array').that.is.not.empty;
+  //   expect(res.headers['set-cookie'][0]).to.include('sessionid');
+  // });
+
+  /**
+   * TC18: Verify that the API correctly handles caching and returns the correct HTTP status code
+   * This test would verify that the API response includes appropriate cache-control headers to
+   * prevent caching.
+   */
+  // test("Verify caching is handled correctly", () => {
+  //   expect(res.headers).to.have.property('cache-control');
+  //   expect(res.headers['cache-control']).to.include('no-cache');
+  // });
+
+  /**
+   * TC19: Verify that the API correctly handles cross-site scripting (XSS) attacks and returns the correct HTTP status code
+   * This test sends a request simulating an XSS attack and checks that the API responds with a 400 Bad
+   * Request status and appropriate status text.
+   */
+  test("Verify XSS attacks are handled correctly", async () => {
+    const response = await bru.runRequest("./scripts/CrossSiteScript/CreateBookingXSS.bru");
+    expect(response.status).to.equal(400);
+    expect(response.statusText).to.equals('Bad Request');
+  });
+
+  /**
+   * TC20: Verify that the API correctly handles SQL injection attacks and returns the correct HTTP status code
+   * This test sends a request simulating an SQL injection attack and checks that the API responds
+   * with a 400 Bad Request status and appropriate status text.
+   */
+  test("Verify SQL injection attacks are handled correctly", async () => {
+    const response = await bru.runRequest("./scripts/SqlInjection/CreateBookingSQLInjection.bru");
+    expect(response.status).to.equal(400);
+    expect(response.statusText).to.equals('Bad Request');
+  });
+  
+  /**
+   * TC21: Verify that the API correctly handles CSRF attacks and returns the correct HTTP status code
+   * This test sends a request simulating a CSRF attack and checks that the API responds with a 400 Bad
+   * Request status and appropriate status text.
+   */
+  test("Verify CSRF attacks are handled correctly", async () => {
+    const response = await bru.runRequest("./scripts/CSRF/CreateBookingCSRF.bru");
+    expect(response.status).to.equal(400);
+    expect(response.statusText).to.equals('Bad Request');
+  });
+
+  // Directly require the schema JSON file instead of reading with fs
+  function getSchema(schemaPath) {
+    return require(schemaPath);
+  }
+
+  /**
+   * TC22: Schema validation for successful response
+   * This test validates the API response body against the expected JSON schema for a successful token
+   * creation response.
+   */
+  test("Verify response schema", () => {
+    const Ajv = require('ajv');
+    const ajv = new Ajv();
+    const validate = ajv.compile(getSchema('./scripts/schemas/CreateBookingResponseSchema.json'));
+    const valid = validate(res.body);
+    if (!valid) {
+      console.log(validate.errors);
+    }
+    expect(valid).to.be.true;
+  });
+
+  /**
+   * TC23: Schema validation for request payload      
+   * This test validates the request payload against the expected JSON schema to ensure it meets
+   * the required structure.
+   */
+  test("Verify payload schema", () => {
+    const Ajv = require('ajv');
+    const ajv = new Ajv();
+    const validate = ajv.compile(getSchema('./scripts/schemas/CreateBookingPayloadSchema.json'));
+    const valid = validate(req.body);
+    if (!valid) {
+      console.log(validate.errors);
+    }
+    expect(valid).to.be.true;
+  });
+
+  /**
+   * TC26: Verify that the API request body is correct
+   * This test ensures that the request payload contains the correct field property with the correct type
+   */
+  test("Verify request body is correct", () => {
+    expect(res.body).to.be.an('object');
+    expect(res.body).to.have.property('bookingid').that.is.a('number');
+    expect(res.body).to.have.property('booking').that.is.an('object');
+    expect(res.body.booking).to.have.property('firstname').that.is.a('string');
+    expect(res.body.booking).to.have.property('lastname').that.is.a('string');
+    expect(res.body.booking).to.have.property('totalprice').that.is.a('number');
+    expect(res.body.booking).to.have.property('depositpaid').that.is.a('boolean');
+    expect(res.body.booking.bookingdates).to.be.an('object');
+    expect(res.body.booking.bookingdates).to.have.property('checkin').that.is.a('string');
+    expect(res.body.booking.bookingdates).to.have.property('checkout').that.is.a('string');
+    expect(res.body.booking).to.have.property('additionalneeds').that.is.a('string');
+  });
+  
 }
-
 
 docs {
   Creates a new booking in the API
