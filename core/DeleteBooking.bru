@@ -5,26 +5,40 @@ meta {
 }
 
 delete {
-  url: https://restful-booker.herokuapp.com/booking/1
+  url: https://restful-booker.herokuapp.com/booking/75
   body: none
   auth: none
 }
 
 headers {
   Content-Type: application/json
-  Authorization: Basic 7b8e11fbf287826
+  Authorization: Basic YWRtaW46cGFzc3dvcmQxMjM=
 }
 
 tests {
   const chai = require('chai');
   const { expect } = chai;
-
-    // TC15, TC25 : Verify that the API returns a 403 status code for unauthorised request
-  test("Schema validation for unauthorised request", () => {
+  
+  
+  
+  // TC15, TC25 : Verify that the API returns a 403 status code for unauthorised request
+  test("Verify that the API returns a 403 status code for unauthorised request", () => {
     expect(res.status).to.equal(403);
-    expect(res.body).to.have.property('reason');
-    expect(res.body.reason).to.equal('Forbidden');
+    expect(res.body).to.equal('Forbidden');
   });
+
+  // TC xx: Verify that the API returns a 201 status code for successful deletion
+  test("Verify that the API returns a 201 status code for successful deletion", () => {
+    expect(res.status).to.equal(201);
+    expect(res.body).to.equal('Created');
+  });
+  
+  // TC xx: Verify that the API returns a 405 status code for deleting non existing booking
+  test("Verify that the API returns a 405 status code for deleting non existing booking", () => {
+    expect(res.status).to.equal(405);
+    expect(res.body).to.equal('Method Not Allowed');
+  });
+  
 }
 
 docs {
