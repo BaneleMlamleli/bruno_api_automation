@@ -1,0 +1,29 @@
+meta {
+  name: CreateBooking - Cross-site scripting
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://restful-booker.herokuapp.com/booking
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstname": <img src=x onerror=alert('CSRF')>, //expected String type
+    "lastname": <img src=x onerror=alert('CSRF')>, //expected String type
+    "totalprice": <img src=x onerror=alert('CSRF')>, //expected a float or integer type
+    "depositpaid": <img src=x onerror=alert('CSRF')>, //expected a boolean type
+    "bookingdates": {
+      "checkin": <img src=x onerror=alert('CSRF')>, //expected a date type with format YYYY-MM-DD
+      "checkout": <img src=x onerror=alert('CSRF')> //expected a date type with format YYYY-MM-DD
+    },
+    "additionalneeds": "" //expected String type
+  }
+}
+
+docs {
+  API correctly handles CSRF attacks and returns the correct HTTP status code and error message.
+}

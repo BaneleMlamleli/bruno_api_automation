@@ -1,0 +1,29 @@
+meta {
+  name: CreateBooking - Cross-site scripting
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://restful-booker.herokuapp.com/booking
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstname": '<script>alert('XSS');</script', //expected String type
+    "lastname": '<script>alert('XSS');</script', //expected String type
+    "totalprice": '<script>alert('XSS');</script', //expected a float or integer type
+    "depositpaid": '<script>alert('XSS');</script', //expected a boolean type
+    "bookingdates": {
+      "checkin": '<script>alert('XSS');</script', //expected a date type with format YYYY-MM-DD
+      "checkout": '<script>alert('XSS');</script' //expected a date type with format YYYY-MM-DD
+    },
+    "additionalneeds": "" //expected String type
+  }
+}
+
+docs {
+  API correctly handles cross-site scripting (XSS) attacks and returns the correct HTTP status code and error message.
+}
