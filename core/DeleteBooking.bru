@@ -5,21 +5,73 @@ meta {
 }
 
 delete {
-  url: https://restful-booker.herokuapp.com/booking/75
+  url: https://restful-booker.herokuapp.com/booking/{{id}}
   body: none
   auth: none
 }
 
 headers {
   Content-Type: application/json
-  Authorization: Basic YWRtaW46cGFzc3dvcmQxMjM=
+  Authorization: Basic {{token}}
 }
 
 tests {
   const chai = require('chai');
   const { expect } = chai;
   
+  // TC01, TC02: Verify Required Headers are Present
+  /**
+   * Test Case: Verify headers are present and valid
+   * 
+   * This test checks that the response contains the required HTTP headers:
+   * - 'content-type' header includes 'application/json'
+   * - 'server' header is present and is a string
+   * - 'connection' header is present and equals 'keep-alive'
+   */
+  test("Verify headers are present and valid", () => {
+    expect(res.headers).to.have.property('content-type').that.includes('text/plain');
+    // expect(res.headers).to.have.property('server').that.is.a('string');
+    // expect(res.headers).to.have.property('connection').that.equals('keep-alive');
+  });
   
+  /**
+   * TC04, TC07: Verify Accept Header for Response Format
+   * This test ensures that the API respects the Accept header by returning a JSON response with the
+   * correct content-type and that the response body is an object.
+   */
+  test("Verify Accept header is respected for TEXT response format", () => {
+    expect(res.headers['content-type']).to.include('text/plain; charset=utf-8');
+  });
+
+  /**
+   * TC10: Verify that the API response time is within acceptable limits
+   * This test asserts that the API response time does not exceed the maximum allowed
+   * threshold (5 seconds).
+   */
+  test("Verify response time is within acceptable limits", () => {
+    const maxResponseTime = 5000;
+    expect(res.getResponseTime()).to.be.lessThan(maxResponseTime);
+  });
+  
+  /**
+   * TC12: Verify that the API request method is correct (e.g. GET, POST, PUT, DELETE)
+   * This test checks that the HTTP request method used is POST.
+   */
+  test("Verify request method is DELETE", () => {
+    expect(req.method).to.equal('DELETE');
+  });
+  
+  /**
+   * TC13: Verify that the API request URL is correct
+   * This test verifies that the API request is sent to the correct endpoint URL for authentication.
+   */
+  test("Verify request URL is correct", () => {
+    // TODO: Write code to read the id from the environment variable and concatenate it to the URL
+    const id = bru.getEnvVar('id');
+    const url = 'https://restful-booker.herokuapp.com/booking/'+id;
+    console.log('URL: ', url);
+    expect(req.url).to.equal(url);
+  });
   
   // TC15, TC25 : Verify that the API returns a 403 status code for unauthorised request
   test("Verify that the API returns a 403 status code for unauthorised request", () => {
