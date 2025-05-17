@@ -31,7 +31,7 @@ body:json {
 
 script:pre-request {
   const { faker } = require('@faker-js/faker');
-
+  
   // Set the environment variables for the request
   bru.setEnvVar("firstname", faker.person.firstName()); // Rowan
   bru.setEnvVar("lastname", faker.person.lastName()); // Nikolaus
@@ -40,6 +40,10 @@ script:pre-request {
   bru.setEnvVar("checkin", faker.date.future({ years: 1 }).toISOString().split('T')[0]); // 2024-10-01
   bru.setEnvVar("checkout", faker.date.future({ years: 1 }).toISOString().split('T')[0]); // 2024-10-02
   bru.setEnvVar("additionalneeds", faker.lorem.sentence()); // "Breakfast included"
+}
+
+script:post-response {
+  bru.setEnvVar('id',res.body.bookingid);
 }
 
 tests {
