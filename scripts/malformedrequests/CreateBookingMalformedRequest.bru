@@ -1,0 +1,29 @@
+meta {
+  name: CreateBooking - malformed request
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://restful-booker.herokuapp.com/booking
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstname": 456, //expected String type
+    "lastname": ~, //expected String type
+    "totalprice": null, //expected a float or integer type
+    "depositpaid": "Null", //expected a boolean type
+    "bookingdates": {
+      "checkin": "10/Jan/2025", //expected a date type with format YYYY-MM-DD
+      "checkout": "01-01-1900" //expected a date type with format YYYY-MM-DD
+    },
+    "additionalneeds": "" //expected String type
+  }
+}
+
+docs {
+  Provides a malformed payload request 
+}

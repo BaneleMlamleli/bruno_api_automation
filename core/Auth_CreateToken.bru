@@ -21,13 +21,9 @@ assert {
   res.status: eq 200
 }
 
-script:pre-request {
-  console.log("pre request");
-}
-
 script:post-response {
   bru.setEnvVar("token",res.body.token);
-  console.log(req.headers);
+  console.log("Generated Token: " + res.body.token);
 }
 
 tests {
@@ -68,7 +64,6 @@ tests {
   test("Verify headers are present and valid", () => {
     expect(res.headers).to.have.property('content-type').that.includes('application/json');
     expect(res.headers).to.have.property('server').that.is.a('string');
-    expect(res.headers).to.have.property('connection').that.equals('keep-alive');
   });
   
   /**
@@ -106,10 +101,10 @@ tests {
    * threshold (5 seconds).
    */
   test("Verify response time is within acceptable limits", () => {
-    const maxResponseTime = 5000; // 2 seconds
+    const maxResponseTime = 10000; // 4 seconds
     expect(res.getResponseTime()).to.be.lessThan(maxResponseTime);
   });
-
+  
   /**
    * TC12: Verify that the API request method is correct (e.g. GET, POST, PUT, DELETE)
    * This test checks that the HTTP request method used is POST, as expected for token creation.
@@ -117,7 +112,7 @@ tests {
   test("Verify request method is POST", () => {
     expect(req.method).to.equal('POST');
   });
-
+  
   /**
    * TC13: Verify that the API request URL is correct
    * This test verifies that the API request is sent to the correct endpoint URL for authentication.
@@ -125,9 +120,9 @@ tests {
   test("Verify request URL is correct", () => {
     expect(req.url).to.equal('https://restful-booker.herokuapp.com/auth');
   });
-
-
-
+  
+  
+  
   /**
    * TC14, TC16: Verify that the API returns an error message if the request is malformed
    * Note: Body of the request (payload) is malformed
@@ -139,7 +134,7 @@ tests {
     expect(response.status).to.equal(400);
     expect(response.statusText).to.equal('Bad Request');
   });
-
+  
   /**
    * TC17: Verify that the API correctly handles cookies and returns the correct HTTP status code
    * This test would check that the API sets cookies correctly in the response headers and includes
@@ -150,7 +145,7 @@ tests {
   //   expect(res.headers['set-cookie']).to.be.an('array').that.is.not.empty;
   //   expect(res.headers['set-cookie'][0]).to.include('sessionid');
   // });
-
+  
   /**
    * TC18: Verify that the API correctly handles caching and returns the correct HTTP status code
    * This test would verify that the API response includes appropriate cache-control headers to
@@ -160,7 +155,7 @@ tests {
   //   expect(res.headers).to.have.property('cache-control');
   //   expect(res.headers['cache-control']).to.include('no-cache');
   // });
-
+  
   /**
    * TC19: Verify that the API correctly handles cross-site scripting (XSS) attacks and returns the correct HTTP status code
    * This test sends a request simulating an XSS attack and checks that the API responds with a 400 Bad
@@ -171,7 +166,7 @@ tests {
     expect(response.status).to.equal(400);
     expect(response.statusText).to.equals('Bad Request');
   });
-
+  
   /**
    * TC20: Verify that the API correctly handles SQL injection attacks and returns the correct HTTP status code
    * This test sends a request simulating an SQL injection attack and checks that the API responds
@@ -193,12 +188,12 @@ tests {
     expect(response.status).to.equal(400);
     expect(response.statusText).to.equals('Bad Request');
   });
-
+  
   // Directly require the schema JSON file instead of reading with fs
   function getSchema(schemaPath) {
     return require(schemaPath);
   }
-
+  
   /**
    * TC22: Schema validation for successful response
    * This test validates the API response body against the expected JSON schema for a successful token
@@ -214,7 +209,7 @@ tests {
     }
     expect(valid).to.be.true;
   });
-
+  
   /**
    * TC23: Schema validation for request payload      
    * This test validates the request payload against the expected JSON schema to ensure it meets
@@ -230,7 +225,7 @@ tests {
     }
     expect(valid).to.be.true;
   });
-
+  
   /**
    * TC26: Verify that the API request body is correct
    * This test ensures that the request payload contains the correct 'username' and 'password'

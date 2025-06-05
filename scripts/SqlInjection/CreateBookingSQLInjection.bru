@@ -1,0 +1,29 @@
+meta {
+  name: CreateBooking - SQL Injection
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://restful-booker.herokuapp.com/booking
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstname": "' OR '1'='1", //expected String type
+    "lastname": "' OR '1'='1", //expected String type
+    "totalprice": "' OR '1'='1", //expected a float or integer type
+    "depositpaid": "' OR '1'='1", //expected a boolean type
+    "bookingdates": {
+      "checkin": "' OR '1'='1", //expected a date type with format YYYY-MM-DD
+      "checkout": "' OR '1'='1" //expected a date type with format YYYY-MM-DD
+    },
+    "additionalneeds": "" //expected String type
+  }
+}
+
+docs {
+  API correctly handles SQL Injection attacks and returns the correct HTTP status code and error message. 
+}

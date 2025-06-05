@@ -21,6 +21,9 @@
       .n-collapse-item.error > .n-collapse-item__header {
         background-color: rgba(251, 238, 241, 1);
       }
+      .skipped > .status {
+        color: orange;
+      }
 
       .min-width-150 {
         min-width: 150px;
@@ -156,13 +159,13 @@
                   </n-flex>
                 </template>
               </n-page-header>
-              <n-tabs type="segment" animated>
+              <n-tabs type="segment" animated v-model:value="currentTab">
                 <n-tab-pane name="summary" tab="Summary">
                   <n-flex justify="center" vertical>
                     <x-summary v-for="(result, index) in res" :res="result" :key="index"></x-summary>
                   </n-flex>
                 </n-tab-pane>
-                <n-tab-pane name="Requests" tab="Requests">
+                <n-tab-pane name="requests" tab="Requests">
                   <n-flex justify="center" vertical>
                     <x-requests v-for="(result, index) in res" :res="result" :key="index"></x-requests>
                   </n-flex>
@@ -206,6 +209,10 @@
                 >
                 </n-statistic>
               </n-alert>
+              <n-alert type="warning" v-if="summarySkippedRequests">
+                <n-statistic label="Skipped requests" :value="summarySkippedRequests">
+                </n-statistic>
+              </n-alert>
               <n-statistic
               label="Total run duration"
               :value="Math.round(totalRunDuration*1000)/1000"
@@ -229,47 +236,27 @@
             :rail-style="railStyle"
           >
             <template #checked> Only Failed </template>
-            <template #unchecked> Only Passed </template>
+            <template #unchecked> Show All </template>
           </n-switch>
 
           <n-collapse>
-            <x-results-group v-for="(results, group) in groupedResults" :results="results" :group="group" :key="group + '-' + results.length"></x-results-group>
+            <x-result v-for="(result, index) in results" :result="result" :key="results.length"></x-result>
           </n-collapse>
         </n-flex>
       </n-card>
     </script>
-    <script type="text/x-template" id="results-group-component">
-      <n-collapse-item
-        :name="group"
-        arrow-placement="right"
-      >
-        <template #header>
-          <n-alert
-            :type="hasError || hasFailure ? 'error' : 'success'"
-            :bordered="false"
-          >
-            <template #header>
-              {{group}} - {{totalPassed}} / {{total}} Passed {{ hasError? " - Error" : "" }}
-            </template>
-          </n-alert>
-        </template>
-        <n-collapse>
-          <x-result v-for="(result, index) in results" :result="result" :group="group" :key="index"></x-result>
-        </n-collapse>
-      </n-collapse-item>
-    </script>
     <script type="text/x-template" id="result-component">
       <n-collapse-item
-        :name="name"
+        :name="resultTitle"
         arrow-placement="right"
       >
         <template #header>
           <n-alert
-            :type="hasError || hasFailure ? 'error' : 'success'"
+            :type="getAlertType"
             :bordered="false"
           >
             <template #header>
-              {{suitename}} - {{totalPassed}} / {{total}} Passed {{hasError ? " - Error" : "" }}
+              {{result.path}} - {{result.response.status === 'skipped' ? 'Request Skipped' : (totalPassed + '/' + total + ' Passed')}} {{hasError ? " - (request failed)" : "" }}
             </template>
           </n-alert>
         </template>
@@ -281,7 +268,7 @@
                   <n-list-item>
                     <n-thing
                       title="File"
-                      :description="result.test.filename"
+                      :description="result.path"
                     />
                   </n-list-item>
                   <n-list-item>
@@ -337,7 +324,13 @@
             v-if="result.request.data"
             title="REQUEST BODY"
           >
-            <pre>{{result.request.data}}</pre>
+          <iframe
+            v-if="result.request.isHtml"
+            :srcdoc="result.request.data"
+            style="width: 100%; height: 400px; border: none;"
+          ></iframe>
+
+          <pre v-else>{{ result.request.data }}</pre>
           </n-card>
           <n-card title="RESPONSE HEADERS">
             <n-data-table
@@ -349,8 +342,13 @@
             v-if="result.response.data"
             title="RESPONSE BODY"
           >
-            <pre>{{result.response.data}}</pre>
-          </n-card>
+          <iframe
+            v-if="result.response.isHtml"
+            :srcdoc="result.response.data"
+            style="width: 100%; height: 400px; border: none;"
+          ></iframe>
+
+          <pre v-else>{{ result.response.data }}</pre>          </n-card>
           <n-card title="ASSERTIONS INFORMATION">
             <n-data-table
               :columns="assertionsColumns"
@@ -369,135 +367,28 @@
       </n-collapse-item>
     </script>
     <script>
-      const { createApp, ref, computed } = Vue;
+      const { createApp, ref, computed, onMounted } = Vue;
 
       const App = {
         setup() {
-          const res = [
-  {
-    "iterationIndex": 0,
-    "summary": {
-      "totalRequests": 1,
-      "passedRequests": 1,
-      "failedRequests": 0,
-      "skippedRequests": 0,
-      "totalAssertions": 1,
-      "passedAssertions": 1,
-      "failedAssertions": 0,
-      "totalTests": 11,
-      "passedTests": 11,
-      "failedTests": 0
-    },
-    "results": [
-      {
-        "test": {
-          "filename": "./core/Auth_CreateToken.bru"
-        },
-        "request": {
-          "method": "POST",
-          "url": "https://restful-booker.herokuapp.com/auth",
-          "headers": {
-            "content-type": "application/json"
-          },
-          "data": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}"
-        },
-        "response": {
-          "status": 200,
-          "statusText": "OK",
-          "headers": {
-            "server": "Cowboy",
-            "report-to": "{\"group\":\"heroku-nel\",\"max_age\":3600,\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?ts=1745941571&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=KVXXC4PgO1CaXybot3sLueM4%2Bk02lAlpUROas5wjhwM%3D\"}]}",
-            "reporting-endpoints": "heroku-nel=https://nel.heroku.com/reports?ts=1745941571&sid=c46efe9b-d3d2-4a0c-8c76-bfafa16c5add&s=KVXXC4PgO1CaXybot3sLueM4%2Bk02lAlpUROas5wjhwM%3D",
-            "nel": "{\"report_to\":\"heroku-nel\",\"max_age\":3600,\"success_fraction\":0.005,\"failure_fraction\":0.05,\"response_headers\":[\"Via\"]}",
-            "connection": "keep-alive",
-            "x-powered-by": "Express",
-            "content-type": "application/json; charset=utf-8",
-            "content-length": "27",
-            "etag": "W/\"1b-DMCMM4yfDLrIBIlV5GDeKUwqZGk\"",
-            "date": "Tue, 29 Apr 2025 15:46:11 GMT",
-            "via": "1.1 vegur"
-          },
-          "data": {
-            "token": "cecf6c6cf9c42d7"
-          },
-          "responseTime": 2203
-        },
-        "error": null,
-        "assertionResults": [
-          {
-            "uid": "NagHkQAUZUFYyDt7rkF1c",
-            "lhsExpr": "res.status",
-            "rhsExpr": "eq 200",
-            "rhsOperand": "200",
-            "operator": "eq",
-            "status": "pass"
+          function decodeBase64(base64) {
+            const binary = atob(base64);
+            const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+            return new TextDecoder().decode(bytes);
           }
-        ],
-        "testResults": [
-          {
-            "description": "Verify a valid token is generated",
-            "status": "pass",
-            "uid": "noIk7eeBnPZ53CZvEOR8w"
-          },
-          {
-            "description": "Verify headers are present and valid",
-            "status": "pass",
-            "uid": "MUOexAyR2NhF81C6MWW0x"
-          },
-          {
-            "description": "Verify response code is 200",
-            "status": "pass",
-            "uid": "7dh7eLua9PlK-ytw_yMGC"
-          },
-          {
-            "description": "Verify Accept header is respected for JSON response format",
-            "status": "pass",
-            "uid": "CKNjMcD16_Q85WgxxEpZS"
-          },
-          {
-            "description": "Verify that the API response contains all the expected fields",
-            "status": "pass",
-            "uid": "_c4gt1vc7aay3rJ2y7LA1"
-          },
-          {
-            "description": "Verify response time is within acceptable limits",
-            "status": "pass",
-            "uid": "D2h0InANT3eDIJaB_ewIY"
-          },
-          {
-            "description": "Verify request method is POST",
-            "status": "pass",
-            "uid": "qlwEAG1HCacQxacRrkUZk"
-          },
-          {
-            "description": "Verify request URL is correct",
-            "status": "pass",
-            "uid": "Vex0dzjvDXEdSk4UMAaaq"
-          },
-          {
-            "description": "Verify request body is correct",
-            "status": "pass",
-            "uid": "lGlvMQnW0V9ezEAl0kea-"
-          },
-          {
-            "description": "Verify response schema",
-            "status": "pass",
-            "uid": "weZQ_EVNkcF8lpNE9PR-W"
-          },
-          {
-            "description": "Verify payload schema",
-            "status": "pass",
-            "uid": "w3HHWBEehO7VYwArCv8FA"
-          }
-        ],
-        "shouldStopRunnerExecution": false,
-        "runtime": 2.322340566,
-        "suitename": "./core/Auth_CreateToken",
-        "iterationIndex": 0
-      }
-    ]
-  }
-];
+          const res = JSON.parse(decodeBase64('W3siaXRlcmF0aW9uSW5kZXgiOjAsInJlc3VsdHMiOlt7InRlc3QiOnsiZmlsZW5hbWUiOiJjb3JlL1BhcnRpYWxVcGRhdGVCb29raW5nLmJydSJ9LCJyZXF1ZXN0Ijp7Im1ldGhvZCI6IlBBVENIIiwidXJsIjoiaHR0cHM6Ly9yZXN0ZnVsLWJvb2tlci5oZXJva3VhcHAuY29tL2Jvb2tpbmcvNjU2MiIsImhlYWRlcnMiOnsiQWNjZXB0IjoiYXBwbGljYXRpb24vanNvbiIsIkNvbnRlbnQtVHlwZSI6ImFwcGxpY2F0aW9uL2pzb24iLCJDb29raWUiOiJ0b2tlbj0zMWNiOTIzNTY5ZTg0OWMifSwiZGF0YSI6IntcbiAgXCJmaXJzdG5hbWVcIjogXCJUaW5hXCIsXG4gIFwibGFzdG5hbWVcIjogXCJUdXR0ZXJcIlxufSIsImlzSHRtbCI6ZmFsc2V9LCJyZXNwb25zZSI6eyJzdGF0dXMiOjQwMywic3RhdHVzVGV4dCI6IkZvcmJpZGRlbiIsImhlYWRlcnMiOnsiY29udGVudC1sZW5ndGgiOiI5IiwiY29udGVudC10eXBlIjoidGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOCIsImRhdGUiOiJTdW4sIDAxIEp1biAyMDI1IDIwOjIxOjI5IEdNVCIsImV0YWciOiJXL1wiOS1QYXRmWUJMajRVbTFxVG01enJ1a29MaE55UFVcIiIsIm5lbCI6IntcInJlcG9ydF90b1wiOlwiaGVyb2t1LW5lbFwiLFwicmVzcG9uc2VfaGVhZGVyc1wiOltcIlZpYVwiXSxcIm1heF9hZ2VcIjozNjAwLFwic3VjY2Vzc19mcmFjdGlvblwiOjAuMDEsXCJmYWlsdXJlX2ZyYWN0aW9uXCI6MC4xfSIsInJlcG9ydC10byI6IntcImdyb3VwXCI6XCJoZXJva3UtbmVsXCIsXCJlbmRwb2ludHNcIjpbe1widXJsXCI6XCJodHRwczovL25lbC5oZXJva3UuY29tL3JlcG9ydHM/cz1UVDNpVGFMcGJRM3IxZE5GTldOJTJCTTdKZXI4dWpUZkxCMVJPQlcxUDVnQ2MlM0RcXHUwMDI2c2lkPWM0NmVmZTliLWQzZDItNGEwYy04Yzc2LWJmYWZhMTZjNWFkZFxcdTAwMjZ0cz0xNzQ4ODA5Mjg5XCJ9XSxcIm1heF9hZ2VcIjozNjAwfSIsInJlcG9ydGluZy1lbmRwb2ludHMiOiJoZXJva3UtbmVsPVwiaHR0cHM6Ly9uZWwuaGVyb2t1LmNvbS9yZXBvcnRzP3M9VFQzaVRhTHBiUTNyMWRORk5XTiUyQk03SmVyOHVqVGZMQjFST0JXMVA1Z0NjJTNEJnNpZD1jNDZlZmU5Yi1kM2QyLTRhMGMtOGM3Ni1iZmFmYTE2YzVhZGQmdHM9MTc0ODgwOTI4OVwiIiwic2VydmVyIjoiSGVyb2t1IiwidmlhIjoiMS4xIGhlcm9rdS1yb3V0ZXIiLCJ4LXBvd2VyZWQtYnkiOiJFeHByZXNzIn0sImRhdGEiOiJGb3JiaWRkZW4iLCJyZXNwb25zZVRpbWUiOjIzNjksImlzSHRtbCI6ZmFsc2V9LCJlcnJvciI6bnVsbCwic3RhdHVzIjoicGFzcyIsImFzc2VydGlvblJlc3VsdHMiOltdLCJ0ZXN0UmVzdWx0cyI6W3siZGVzY3JpcHRpb24iOiJWZXJpZnkgaGVhZGVycyBhcmUgcHJlc2VudCBhbmQgdmFsaWQiLCJzdGF0dXMiOiJmYWlsIiwiZXJyb3IiOiJleHBlY3RlZCAndGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOCcgdG8gaW5jbHVkZSAnYXBwbGljYXRpb24vanNvbiciLCJhY3R1YWwiOiJ0ZXh0L3BsYWluOyBjaGFyc2V0PXV0Zi04IiwidWlkIjoiUkxYaXNlOTduUVZKZEo0OTZubmI2In0seyJkZXNjcmlwdGlvbiI6IlZlcmlmeSByZXNwb25zZSBjb2RlIGlzIDIwMCIsInN0YXR1cyI6ImZhaWwiLCJlcnJvciI6ImV4cGVjdGVkIDQwMyB0byBlcXVhbCAyMDAiLCJhY3R1YWwiOjQwMywiZXhwZWN0ZWQiOjIwMCwidWlkIjoicmZ5Z1lzRG5JbE5NWTluRGYwVEY3In0seyJkZXNjcmlwdGlvbiI6IlZlcmlmeSBBY2NlcHQgaGVhZGVyIGlzIHJlc3BlY3RlZCBmb3IgSlNPTiByZXNwb25zZSBmb3JtYXQiLCJzdGF0dXMiOiJmYWlsIiwiZXJyb3IiOiJleHBlY3RlZCAndGV4dC9wbGFpbjsgY2hhcnNldD11dGYtOCcgdG8gaW5jbHVkZSAnYXBwbGljYXRpb24vanNvbiciLCJhY3R1YWwiOiJ0ZXh0L3BsYWluOyBjaGFyc2V0PXV0Zi04IiwidWlkIjoidWZJT3NTM3NBbXF0Nkx2cTNudXlfIn0seyJkZXNjcmlwdGlvbiI6IlZlcmlmeSB0aGF0IHRoZSBBUEkgcmVzcG9uc2UgY29udGFpbnMgYWxsIHRoZSBleHBlY3RlZCBmaWVsZHMiLCJzdGF0dXMiOiJmYWlsIiwiZXJyb3IiOiJleHBlY3RlZCAnRm9yYmlkZGVuJyB0byBiZSBhbiBvYmplY3QiLCJhY3R1YWwiOiJGb3JiaWRkZW4iLCJ1aWQiOiJUMDJNSmEyN2dsUzNScjAzbXZGcW0ifSx7ImRlc2NyaXB0aW9uIjoiVmVyaWZ5IHJlcXVlc3QgVVJMIGlzIGNvcnJlY3QiLCJzdGF0dXMiOiJmYWlsIiwiZXJyb3IiOiJleHBlY3RlZCAnaHR0cHM6Ly9yZXN0ZnVsLWJvb2tlci5oZXJva3VhcHAuY29tL+KApicgdG8gZXF1YWwgJ2h0dHBzOi8vcmVzdGZ1bC1ib29rZXIuaGVyb2t1YXBwLmNvbS/igKYnIiwiYWN0dWFsIjoiaHR0cHM6Ly9yZXN0ZnVsLWJvb2tlci5oZXJva3VhcHAuY29tL2Jvb2tpbmcvNjU2MiIsImV4cGVjdGVkIjoiaHR0cHM6Ly9yZXN0ZnVsLWJvb2tlci5oZXJva3VhcHAuY29tL2Jvb2tpbmcvdW5kZWZpbmVkIiwidWlkIjoibk55aDRDNTJGMXMzQXI0Y2JVVTdtIn0seyJkZXNjcmlwdGlvbiI6IlZlcmlmeSByZXNwb25zZSBzY2hlbWEiLCJzdGF0dXMiOiJmYWlsIiwiZXJyb3IiOiJleHBlY3RlZCBmYWxzZSB0byBiZSB0cnVlIiwiYWN0dWFsIjpmYWxzZSwiZXhwZWN0ZWQiOnRydWUsInVpZCI6Im5lOXNza3RHYW1uNkRHczZmQkxkdyJ9LHsiZGVzY3JpcHRpb24iOiJTY2hlbWEgdmFsaWRhdGlvbiBmb3IgdW5hdXRob3Jpc2VkIHJlcXVlc3QiLCJzdGF0dXMiOiJmYWlsIiwiZXJyb3IiOiJleHBlY3RlZCB1bmRlZmluZWQgdG8gZXF1YWwgJ0ZvcmJpZGRlbiciLCJleHBlY3RlZCI6IkZvcmJpZGRlbiIsInVpZCI6IjE1TlA5TGx0NDZTQXVDSmNXemR2dyJ9LHsiZGVzY3JpcHRpb24iOiJWZXJpZnkgdGhhdCB0aGUgQVBJIHJldHVybnMgYSAyMDEgc3RhdHVzIGNvZGUgZm9yIHN1Y2Nlc3NmdWwgcGFydGlhbCB1cGRhdGUiLCJzdGF0dXMiOiJmYWlsIiwiZXJyb3IiOiJleHBlY3RlZCA0MDMgdG8gZXF1YWwgMjAxIiwiYWN0dWFsIjo0MDMsImV4cGVjdGVkIjoyMDEsInVpZCI6IjVQQ3Nmd1JKSkZlM2NoekY4cV9qUyJ9LHsiZGVzY3JpcHRpb24iOiJWZXJpZnkgcmVzcG9uc2UgdGltZSBpcyB3aXRoaW4gYWNjZXB0YWJsZSBsaW1pdHMiLCJzdGF0dXMiOiJwYXNzIiwidWlkIjoicTJkUlNXZ3FKczBHZlV0STVDWmdsIn0seyJkZXNjcmlwdGlvbiI6IlZlcmlmeSByZXF1ZXN0IG1ldGhvZCBpcyBQQVRDSCIsInN0YXR1cyI6InBhc3MiLCJ1aWQiOiJFSzNFdFRyUHh6RXV0ZmIzU0VibVMifSx7ImRlc2NyaXB0aW9uIjoiVmVyaWZ5IHRoYXQgdGhlIEFQSSByZXR1cm5zIGEgNDA1IHN0YXR1cyBjb2RlIGZvciB1cGRhdGluZyBub24gZXhpc3RpbmcgYm9va2luZyIsInN0YXR1cyI6InBhc3MiLCJ1aWQiOiJ3ZGdrdk4xSHBXMU9HTERQNHBLRVAifV0sInNob3VsZFN0b3BSdW5uZXJFeGVjdXRpb24iOmZhbHNlLCJydW5EdXJhdGlvbiI6Mi42NTY1NDMxNzEsIm5hbWUiOiJCb29raW5nIC0gUGFydGlhbFVwZGF0ZUJvb2tpbmciLCJwYXRoIjoiY29yZS9QYXJ0aWFsVXBkYXRlQm9va2luZyIsIml0ZXJhdGlvbkluZGV4IjowfV0sInN1bW1hcnkiOnsidG90YWxSZXF1ZXN0cyI6MSwicGFzc2VkUmVxdWVzdHMiOjAsImZhaWxlZFJlcXVlc3RzIjoxLCJza2lwcGVkUmVxdWVzdHMiOjAsImVycm9yUmVxdWVzdHMiOjAsInRvdGFsQXNzZXJ0aW9ucyI6MCwicGFzc2VkQXNzZXJ0aW9ucyI6MCwiZmFpbGVkQXNzZXJ0aW9ucyI6MCwidG90YWxUZXN0cyI6MTEsInBhc3NlZFRlc3RzIjozLCJmYWlsZWRUZXN0cyI6OH19XQ=='));
+
+          const currentTab = ref('summary');
+
+          const getTabFromQueryParam = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            return tab && ['summary', 'requests'].includes(tab) ? tab : 'summary';
+          };
+
+          onMounted(() => {
+            currentTab.value = getTabFromQueryParam();
+          });
 
           const darkMode = ref(false);
           const theme = computed(() => {
@@ -514,7 +405,8 @@
             res,
             theme,
             darkMode,
-            darkModeRailStyle: () => ({ background: 'var(--n-rail-color)' })
+            darkModeRailStyle: () => ({ background: 'var(--n-rail-color)' }),
+            currentTab
           };
         }
       };
@@ -542,6 +434,10 @@
               key: 'failed'
             },
             {
+              title: 'SKIPPED',
+              key: 'skipped'
+            },
+            {
               title: 'ERROR',
               key: 'error'
             }
@@ -552,13 +448,15 @@
               total: props.res.summary.totalRequests,
               passed: props.res.summary.passedRequests,
               failed: props.res.summary.failedRequests,
-              error: props?.res?.summary?.errorRequests
+              skipped: props.res.summary.skippedRequests,
+              error: props.res.summary.errorRequests
             },
             {
               title: 'Assertions',
               total: props.res.summary.totalAssertions,
               passed: props.res.summary.passedAssertions,
               failed: props.res.summary.failedAssertions,
+              skipped: '-',
               error: '-'
             },
             {
@@ -566,6 +464,7 @@
               total: props.res.summary.totalTests,
               passed: props.res.summary.passedTests,
               failed: props.res.summary.failedTests,
+              skipped: '-',
               error: '-'
             }
           ]);
@@ -578,8 +477,9 @@
           const summaryFailedControls = computed(
             () => props?.res?.summary?.failedTests + props?.res?.summary?.failedAssertions
           );
+          const summarySkippedRequests = computed(() => props?.res?.summary?.skippedRequests || 0);
           const summaryErrors = computed(() => props?.res?.results?.filter((r) => r.error || r.status === 'error').length) || 0;
-          const totalRunDuration = computed(() => props.res?.results?.reduce((total, test) => test.runtime + total, 0));
+          const totalRunDuration = computed(() => props.res?.results?.reduce((total, result) => result.runDuration + total, 0));
           const iterationIndex = Number(props.res.iterationIndex) + 1;
           return {
             summaryColumns,
@@ -587,6 +487,7 @@
             summaryTotalControls,
             summaryTotalRequests,
             summaryFailedControls,
+            summarySkippedRequests,
             summaryErrors,
             totalRunDuration,
             iterationTitle: 'Iteration ' + iterationIndex
@@ -610,22 +511,10 @@
             }
             return props.res.results;
           });
-          const groupedResults = computed(() => {
-            return filteredResults.value.reduce((groups, curr) => {
-              const path = curr?.suitename?.split('/');
-              const test = path.pop();
-              const name = (path.length || 0) ? path.join('/') : '(root)';
-              if (!groups[name]) {
-                groups[name] = [];
-              }
-              groups[name].push(curr);
-              return groups;
-            }, {});
-          });
           const iterationIndex = Number(props.res.iterationIndex) + 1;
           return {
             onlyFailed,
-            groupedResults,
+            results: filteredResults,
             railStyle: ({ checked }) => {
               const style = {};
               if (checked) {
@@ -638,40 +527,9 @@
         }
       });
 
-      app.component('x-results-group', {
-        template: '#results-group-component',
-        props: ['group', 'results'],
-        setup(props) {
-          const totalPassed = computed(() => {
-            return props.results.reduce((total, curr) => {
-              return (
-                total +
-                (curr?.testResults?.filter((t) => t.status === 'pass').length || 0) +
-                (curr?.assertionResults?.filter((t) => t.status === 'pass').length || 0)
-              );
-            }, 0);
-          });
-          const total = computed(() => {
-            return props.results.reduce((total, curr) => {
-              return total + (curr?.testResults?.length || 0) + (curr?.assertionResults?.length || 0);
-            }, 0);
-          });
-          const hasError = computed(() => props.results.some((r) => !!r.error || r?.status === 'error'));
-          const hasFailure = computed(() => totalPassed.value !== total.value);
-          return {
-            totalPassed,
-            total,
-            hasFailure,
-            hasError,
-            group: props.group,
-            results: props.results
-          };
-        }
-      });
-
       app.component('x-result', {
         template: '#result-component',
-        props: ['group', 'result'],
+        props: ['result'],
         setup(props) {
           const headerColumns = [
             {
@@ -711,6 +569,7 @@
             return row.status === 'fail' ? 'error' : 'success';
           };
           const testsRowClassName = (row) => {
+            if (row.status === 'skipped') return 'skipped';
             return row.status === 'fail' ? 'error' : 'success';
           };
           const testsColumns = [
@@ -756,9 +615,14 @@
 
           const hasError = computed(() => !!props?.result?.error || props?.result?.status === 'error');
           const hasFailure = computed(() => total.value !== totalPassed.value);
-          const suitename = computed(() => props?.result?.suitename?.replace(props.group + '/', ''));
-          const testDuration = computed(() => Math.round(props?.result?.runtime * 1000) + ' ms');
-          const name = computed(() => props?.result?.suitename + props?.result?.runtime);
+          const testDuration = computed(() => Math.round(props?.result?.runDuration * 1000) + ' ms');
+          const resultTitle = computed(() => props?.result?.path + ' ' + props?.result?.response?.status + ' ' + props?.result?.response?.statusText);
+          const getAlertType = computed(() => {
+            if (props.result.response.status === 'skipped') {
+              return 'warning';
+            }
+            return hasError.value || hasFailure.value ? 'error' : 'success';
+          });
           return {
             headerColumns,
             headerDataRequest,
@@ -772,9 +636,9 @@
             hasError,
             testsColumns,
             result: props.result,
-            suitename,
             testDuration,
-            name,
+            resultTitle,
+            getAlertType,
             iterationIndex: props?.result?.iterationIndex
           };
         }
