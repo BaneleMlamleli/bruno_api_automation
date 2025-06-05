@@ -44,6 +44,7 @@ script:pre-request {
 
 script:post-response {
   bru.setEnvVar('id',res.body.bookingid);
+  console.log(`Booking created with ID: ${res.body.bookingid}`);
 }
 
 tests {

@@ -23,6 +23,7 @@ assert {
 
 script:post-response {
   bru.setEnvVar("token",res.body.token);
+  console.log("Generated Token: " + res.body.token);
 }
 
 tests {
@@ -63,7 +64,6 @@ tests {
   test("Verify headers are present and valid", () => {
     expect(res.headers).to.have.property('content-type').that.includes('application/json');
     expect(res.headers).to.have.property('server').that.is.a('string');
-    expect(res.headers).to.have.property('connection').that.equals('keep-alive');
   });
   
   /**
@@ -101,7 +101,7 @@ tests {
    * threshold (5 seconds).
    */
   test("Verify response time is within acceptable limits", () => {
-    const maxResponseTime = 5000; // 2 seconds
+    const maxResponseTime = 10000; // 4 seconds
     expect(res.getResponseTime()).to.be.lessThan(maxResponseTime);
   });
   

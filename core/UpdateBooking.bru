@@ -11,7 +11,7 @@ put {
 }
 
 params:path {
-  id: 1
+  id: {{id}}
 }
 
 headers {
@@ -37,7 +37,7 @@ body:json {
 tests {
   const chai = require('chai');
   const { expect } = chai;
-
+  
     // TC15, TC25 : Verify that the API returns a 403 status code for unauthorised request
   test("Schema validation for unauthorised request", () => {
     expect(res.status).to.equal(403);
