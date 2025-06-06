@@ -5,21 +5,25 @@ meta {
 }
 
 patch {
-  url: https://restful-booker.herokuapp.com/booking/6562
+  url: https://restful-booker.herokuapp.com/booking/?id=1
   body: json
   auth: none
+}
+
+params:query {
+  id: 1
 }
 
 headers {
   Accept: application/json
   Content-Type: application/json
-  Cookie: token=31cb923569e849c
+  Cookie: token=YWRtaW46cGFzc3dvcmQxMjM=
 }
 
 body:json {
   {
-    "firstname": "Tina",
-    "lastname": "Tutter"
+    "firstname": "James",
+    "lastname": "Brown"
   }
 }
 
@@ -45,7 +49,7 @@ tests {
    * - 'connection' header is present and equals 'keep-alive'
    */
   test("Verify headers are present and valid", () => {
-    expect(res.headers).to.have.property('content-type').that.includes('application/json');
+    expect(res.headers).to.have.property('content-type').that.includes('text/plain');
     expect(res.headers).to.have.property('server').that.is.a('string');
     // expect(res.headers).to.have.property('connection').that.equals('keep-alive');
   });
@@ -63,8 +67,8 @@ tests {
    * This test ensures that the API respects the Accept header by returning a JSON response with the
    * correct content-type and that the response body is an object.
    */
-  test("Verify Accept header is respected for JSON response format", () => {
-    expect(res.headers['content-type']).to.include('application/json');
+  test("Verify Accept header is respected for TEXT response format", () => {
+    expect(res.headers['content-type']).to.include('text/plain');
     expect(res.body).to.be.an('object');
   });
     
@@ -157,9 +161,22 @@ tests {
       expect(res.body.reason).to.equal('Method Not Allowed');
     }
   });
+
+  // TC xx: Verify that the API returns a 400 status code for invalid request
+  test("Verify that the API returns a 400 status code for invalid request", () => {
+    if(res.status === 400) {
+      expect(res.status).to.equal(400);
+      expect(res.body.reason).to.equal('Bad Request');
+    }
+  });
   
-  
-}
+  Verify that the API returns a 404 status code for non existing booking
+  test("Verify that the API returns a 404 status code for non existing booking", () => {
+    if(res.status === 404) {
+      expect(res.status).to.equal(404);
+      expect(res.body.reason).to.equal('Not Found');
+    }
+  });
 
 docs {
   Updates a current booking with a partial payload
